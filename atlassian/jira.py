@@ -1416,20 +1416,26 @@ class Jira(AtlassianRestAPI):
         with open(filename, "rb") as attachment:
             return self.add_attachment_object(issue_key, attachment)
 
-    def add_attachment_object(self, issue_key, attachment):
+    def add_attachment_object(self, issue_key, attachment, filename=None):
         """
         Add attachment to Issue
         :param issue_key: str
         :param attachment: IO Object
+        :param filename: Optional[str] - Name of the file to be uploaded
         """
         log.info("Adding attachment:  %s", attachment)
         base_url = self.resource_url("issue")
         url = "{base_url}/{issue_key}/attachments".format(base_url=base_url, issue_key=issue_key)
-        if attachment:
-            files = {"file": attachment}
-        else:
+    
+        if not attachment:
             log.error("Empty attachment")
             return None
+    
+        if filename:
+            files = {"file": (filename, attachment)}
+        else:
+            files = {"file": attachment}
+    
         return self.post(url, headers=self.no_check_headers, files=files)
 
     def issue_exists(self, issue_key):
