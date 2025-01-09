@@ -503,8 +503,8 @@ Attachments actions
     # Add attachment to issue
     jira.add_attachment(issue_key, filename)
 
-    # Add attachment (IO Object) to issue
-    jira.add_attachment_object(issue_key, attachment)
+    # Add attachment (IO Object) to issue and optionally provide a filename
+    jira.add_attachment_object(issue_key, attachment, filename=None)
 
     # Download attachments from the issue
     jira.download_attachments_from_issue(issue, path=None, cloud=True):
