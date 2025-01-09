@@ -43,7 +43,7 @@ class AtlassianRestAPI(object):
         "X-Atlassian-Token": "no-check",
         "X-ExperimentalApi": "opt-in",
     }
-    keep_alive_connection = {
+    keep_alive_headers = {
         "Content-Type": "application/json",
         "Accept": "application/json",
         "Connection": "keep-alive",
