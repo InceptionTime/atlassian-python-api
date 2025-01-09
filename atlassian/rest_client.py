@@ -43,6 +43,11 @@ class AtlassianRestAPI(object):
         "X-Atlassian-Token": "no-check",
         "X-ExperimentalApi": "opt-in",
     }
+    keep_alive_connection = {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+        "Connection": "keep-alive",
+    }
     response = None
 
     def __init__(
