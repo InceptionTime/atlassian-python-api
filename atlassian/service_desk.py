@@ -256,7 +256,7 @@ class ServiceDesk(AtlassianRestAPI):
         data = {"body": body, "public": public}
         url = "rest/servicedeskapi/request/{}/comment".format(issue_id_or_key)
 
-        return self.post(path=url, data=data, headers=self.experimental_headers)
+        return self.post(path=url, data=data, headers=self.keep_alive_connection)
 
     def get_request_comments(self, issue_id_or_key, start=0, limit=50, public=True, internal=True):
         """
