@@ -390,7 +390,8 @@ class Confluence(AtlassianRestAPI):
         """
         Fetches html  tables added to  confluence page
         :param page_id: integer confluence page_id
-        :return: json object with page_id, number_of_tables_in_page  and  list of list tables_content representing scrapepd tables
+        :return: json object with page_id, number_of_tables_in_page
+                 and list of list tables_content representing scraped tables
         """
         try:
             page_content = self.get_page_by_id(page_id, expand="body.storage")["body"]["storage"]["value"]
@@ -732,17 +733,17 @@ class Confluence(AtlassianRestAPI):
         """
         Get all pages from a set of space ids:
         https://developer.atlassian.com/cloud/confluence/rest/v2/api-group-page/#api-pages-get
-
         :param space_ids: A Set of space IDs passed as a filter to Confluence
         :param batch_size: OPTIONAL: The batch size of pages to retrieve from confluence per request MAX is 250.
                                      Default: 250
         :param sort: OPTIONAL: The order the pages are retrieved in.
-                               Valid values: id, -id, created-date, -created-date, modified-date, -modified-date, title, -title
+                               Valid values:
+                                    id, -id, created-date, -created-date, modified-date, -modified-date, title, -title
         :param status: OPTIONAL: Filter pages based on their status.
                                  Valid values: current, archived, deleted, trashed
                                  Default: current,archived
         :param title: OPTIONAL: Filter pages based on their title.
-        :param body-format: OPTIONAL: The format of the body in the response. Valid values: storage, atlas_doc_format
+        :param body_format: OPTIONAL: The format of the body in the response. Valid values: storage, atlas_doc_format
         :return:
         """
         path = "/api/v2/pages"
@@ -1469,8 +1470,7 @@ class Confluence(AtlassianRestAPI):
                 file_name = attachment["title"] or attachment["id"]  # Use attachment ID if title is unavailable
                 download_link = self.url + attachment["_links"]["download"]
                 # Fetch the file content
-                response = self._session.get(str(download_link))
-                response.raise_for_status()  # Raise error if request fails
+                response = self.get(str(download_link))
 
                 if to_memory:
                     # Store in BytesIO object
@@ -1492,7 +1492,11 @@ class Confluence(AtlassianRestAPI):
         except PermissionError:
             raise PermissionError("Permission denied when trying to save files to '{path}'.".format(path=path))
         except requests.HTTPError as http_err:
-            raise Exception("HTTP error occurred while downloading attachments: {http_err}".format(http_err=http_err))
+            raise requests.HTTPError(
+                "HTTP error occurred while downloading attachments: {http_err}".format(http_err=http_err), 
+                response=http_err.response,
+                request=http_err.request
+            )
         except Exception as err:
             raise Exception("An unexpected error occurred: {error}".format(error=err))
 
@@ -2736,7 +2740,8 @@ class Confluence(AtlassianRestAPI):
         """
         Export a Confluence space to a file of the specified type.
         (!) This method was developed for Confluence Cloud and may not work with Confluence on-prem.
-        (!) This is an experimental method that does not trigger an officially supported REST endpoint. It may break if Atlassian changes the space export front-end logic.
+        (!) This is an experimental method that does not trigger an officially supported REST endpoint.
+        It may break if Atlassian changes the space export front-end logic.
 
         :param space_key: The key of the space to export.
         :param export_type: The type of export to perform. Valid values are: 'html', 'csv', 'xml', 'pdf'.
@@ -2744,7 +2749,8 @@ class Confluence(AtlassianRestAPI):
         """
 
         def get_atl_request(url: str):
-            #  Nested function  used to get atl_token used for XSRF protection. this is only applicable to html/csv/xml space exports
+            # Nested function  used to get atl_token used for XSRF protection.
+            # This is only applicable to html/csv/xml space exports
             try:
                 response = self.get(url, advanced_mode=True)
                 parsed_html = BeautifulSoup(response.text, "html.parser")
@@ -2753,7 +2759,7 @@ class Confluence(AtlassianRestAPI):
             except Exception as e:
                 raise ApiError("Problems with getting the atl_token for get_space_export method :", reason=e)
 
-        # Checks if space_ke parameter is valid and  if api_token has relevant permissions to space
+        # Checks if space_ke parameter is valid and if api_token has relevant permissions to space
         self.get_space(space_key=space_key, expand="permissions")
 
         try:
